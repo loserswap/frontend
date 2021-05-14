@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { maxBy } from 'lodash'
+import maxBy from 'lodash/maxBy'
+import merge from 'lodash/merge'
+import { BIG_ZERO } from 'utils/bigNumber'
 import { Bet, HistoryFilter, Market, PredictionsState, PredictionStatus, Round } from 'state/types'
 import {
   makeFutureRoundResponse,
@@ -23,6 +25,7 @@ const initialState: PredictionsState = {
   intervalBlocks: 100,
   bufferBlocks: 2,
   minBetAmount: '1000000000000000',
+  lastOraclePrice: BIG_ZERO.toJSON(),
   rounds: {},
   history: {},
   bets: {},
@@ -57,6 +60,21 @@ export const fetchRoundBet = createAsyncThunk<
   return { account, roundId, bet: null }
 })
 
+/**
+ * Used to poll the user bets of the current round cards
+ */
+export const fetchCurrentBets = createAsyncThunk<
+  { account: string; bets: Bet[] },
+  { account: string; roundIds: string[] }
+>('predictions/fetchCurrentBets', async ({ account, roundIds }) => {
+  const betResponses = await getBetHistory({
+    user: account.toLowerCase(),
+    round_in: roundIds,
+  })
+
+  return { account, bets: betResponses.map(transformBetResponse) }
+})
+
 export const fetchHistory = createAsyncThunk<{ account: string; bets: Bet[] }, { account: string; claimed?: boolean }>(
   'predictions/fetchHistory',
   async ({ account, claimed }) => {
@@ -88,7 +106,10 @@ export const predictionsSlice = createSlice({
       state.historyFilter = action.payload
     },
     initialize: (state, action: PayloadAction<PredictionsState>) => {
-      return action.payload
+      return {
+        ...state,
+        ...action.payload,
+      }
     },
     updateMarketData: (state, action: PayloadAction<{ rounds: Round[]; market: Market }>) => {
       const { rounds, market } = action.payload
@@ -113,34 +134,45 @@ export const predictionsSlice = createSlice({
     setCurrentEpoch: (state, action: PayloadAction<number>) => {
       state.currentEpoch = action.payload
     },
-    markBetAsCollected: (state, action: PayloadAction<{ account: string; betId: string }>) => {
-      const { account, betId } = action.payload
-      const history = state.history[account]
+    markBetAsCollected: (state, action: PayloadAction<{ account: string; roundId: string }>) => {
+      const { account, roundId } = action.payload
+      const accountBets = state.bets[account]
 
-      if (history) {
-        const betIndex = history.findIndex((bet) => bet.id === betId)
-
-        if (betIndex >= 0) {
-          history[betIndex].claimed = true
-        }
+      if (accountBets && accountBets[roundId]) {
+        accountBets[roundId].claimed = true
       }
     },
-    markPositionAsEntered: (
-      state,
-      action: PayloadAction<{ account: string; roundId: string; partialBet: Partial<Bet> }>,
-    ) => {
-      const { account, roundId, partialBet } = action.payload
+    markPositionAsEntered: (state, action: PayloadAction<{ account: string; roundId: string; bet: Bet }>) => {
+      const { account, roundId, bet } = action.payload
 
       state.bets = {
         ...state.bets,
         [account]: {
           ...state.bets[account],
-          [roundId]: partialBet,
+          [roundId]: bet,
         },
       }
     },
+    setLastOraclePrice: (state, action: PayloadAction<string>) => {
+      state.lastOraclePrice = action.payload
+    },
   },
   extraReducers: (builder) => {
+    // Get unclaimed bets
+    builder.addCase(fetchCurrentBets.fulfilled, (state, action) => {
+      const { account, bets } = action.payload
+      const betData = bets.reduce((accum, bet) => {
+        return {
+          ...accum,
+          [bet.round.id]: bet,
+        }
+      }, {})
+
+      state.bets = merge({}, state.bets, {
+        [account]: betData,
+      })
+    })
+
     // Get round bet
     builder.addCase(fetchRoundBet.fulfilled, (state, action) => {
       const { account, roundId, bet } = action.payload
@@ -176,6 +208,18 @@ export const predictionsSlice = createSlice({
       state.isFetchingHistory = false
       state.isHistoryPaneOpen = true
       state.history[account] = bets
+
+      // Save any fetched bets in the "bets" namespace
+      const betData = bets.reduce((accum, bet) => {
+        return {
+          ...accum,
+          [bet.round.id]: bet,
+        }
+      }, {})
+
+      state.bets = merge({}, state.bets, {
+        [account]: betData,
+      })
     })
   },
 })
@@ -191,6 +235,7 @@ export const {
   markBetAsCollected,
   setPredictionStatus,
   markPositionAsEntered,
+  setLastOraclePrice,
 } = predictionsSlice.actions
 
 export default predictionsSlice.reducer

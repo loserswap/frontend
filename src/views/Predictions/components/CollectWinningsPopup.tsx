@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import styled, { css, keyframes } from 'styled-components'
-import { Button, CloseIcon, IconButton, TrophyGoldIcon } from '@pancakeswap-libs/uikit'
+import { Button, CloseIcon, IconButton, TrophyGoldIcon } from '@pancakeswap/uikit'
 import { CSSTransition } from 'react-transition-group'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { getBetHistory } from 'state/predictions/helpers'
 import { useGetPredictionsStatus, useIsHistoryPaneOpen } from 'state/hooks'
 import { useAppDispatch } from 'state'
@@ -120,7 +120,7 @@ const Popup = styled.div`
 
 const CollectWinningsPopup = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const ref = useRef(null)
   const timer = useRef(null)
   const { account } = useWeb3React()
@@ -139,23 +139,27 @@ const CollectWinningsPopup = () => {
 
   // Check user's history for unclaimed winners
   useEffect(() => {
+    let isCancelled = false
     if (account) {
       timer.current = setInterval(async () => {
         const bets = await getBetHistory({ user: account.toLowerCase(), claimed: false })
 
-        // Filter out bets that were not winners
-        const winnerBets = bets.filter((bet) => {
-          return bet.position === bet.round.position
-        })
+        if (!isCancelled) {
+          // Filter out bets that were not winners
+          const winnerBets = bets.filter((bet) => {
+            return bet.position === bet.round.position
+          })
 
-        if (!isHistoryPaneOpen) {
-          setIsOpen(winnerBets.length > 0)
+          if (!isHistoryPaneOpen) {
+            setIsOpen(winnerBets.length > 0)
+          }
         }
       }, 30000)
     }
 
     return () => {
       clearInterval(timer.current)
+      isCancelled = true
     }
   }, [account, timer, predictionStatus, setIsOpen, isHistoryPaneOpen])
 
@@ -172,7 +176,7 @@ const CollectWinningsPopup = () => {
         <Popup>
           <TrophyGoldIcon width="64px" style={{ flex: 'none' }} mr="8px" />
           <Button style={{ flex: 1 }} onClick={handleOpenHistory}>
-            {TranslateString(999, 'Collect Winnings')}
+            {t('Collect Winnings')}
           </Button>
           <IconButton variant="text" onClick={handleClick}>
             <CloseIcon color="primary" width="24px" />

@@ -1,9 +1,10 @@
 import React from 'react'
-import { Button, ButtonProps, useModal } from '@pancakeswap-libs/uikit'
+import { Button, ButtonProps, useModal } from '@pancakeswap/uikit'
 import CollectRoundWinningsModal from './CollectRoundWinningsModal'
 
 interface CollectWinningsButtonProps extends ButtonProps {
   payout: number
+  roundId: string
   epoch: number
   hasClaimed: boolean
   onSuccess?: () => Promise<void>
@@ -11,6 +12,7 @@ interface CollectWinningsButtonProps extends ButtonProps {
 
 const CollectWinningsButton: React.FC<CollectWinningsButtonProps> = ({
   payout,
+  roundId,
   epoch,
   hasClaimed,
   onSuccess,
@@ -18,7 +20,7 @@ const CollectWinningsButton: React.FC<CollectWinningsButtonProps> = ({
   ...props
 }) => {
   const [onPresentCollectWinningsModal] = useModal(
-    <CollectRoundWinningsModal payout={payout} epoch={epoch} onSuccess={onSuccess} />,
+    <CollectRoundWinningsModal payout={payout} roundId={roundId} epoch={epoch} onSuccess={onSuccess} />,
     false,
   )
 

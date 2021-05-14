@@ -8,10 +8,11 @@ import lotteryAbi from 'config/abi/lottery.json'
 import { DEFAULT_TOKEN_DECIMAL, LOTTERY_TICKET_PRICE } from 'config'
 import { AbiItem } from 'web3-utils'
 import { getMulticallAddress } from './addressHelpers'
+import { BIG_ZERO } from './bigNumber'
 
 export const multiCall = async (abi, calls) => {
   const web3 = getWeb3NoAccount()
-  const multi = new web3.eth.Contract((MultiCallAbi as unknown) as AbiItem, getMulticallAddress())
+  const multi = new web3.eth.Contract(MultiCallAbi as unknown as AbiItem, getMulticallAddress())
   const itf = new Interface(abi)
   let res = []
   if (calls.length > 100) {
@@ -152,13 +153,13 @@ export const getTotalClaim = async (lotteryContract, ticketsContract, account) =
     const calls4 = finalTokenIds.map((id) => [lotteryContract.options.address, 'getRewardView', [id]])
 
     const rewards = await multiCall(lotteryAbi, calls4)
-    const claim = rewards.reduce((p, c) => BigNumber.sum(p, c), new BigNumber(0))
+    const claim = rewards.reduce((p, c) => BigNumber.sum(p, c), BIG_ZERO)
 
     return claim
   } catch (err) {
     console.error(err)
   }
-  return new BigNumber(0)
+  return BIG_ZERO
 }
 
 export const getTotalRewards = async (lotteryContract) => {

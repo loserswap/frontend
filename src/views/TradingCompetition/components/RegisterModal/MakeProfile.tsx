@@ -1,11 +1,11 @@
 import React from 'react'
-import { Button, Heading, Text } from '@pancakeswap-libs/uikit'
+import { Button, Heading, Text } from '@pancakeswap/uikit'
 import history from 'routerHistory'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { CompetitionProps } from 'views/TradingCompetition/types'
 
 const MakeProfile: React.FC<CompetitionProps> = ({ onDismiss }) => {
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
 
   const handleClick = () => {
     history.push('/profile')
@@ -14,14 +14,14 @@ const MakeProfile: React.FC<CompetitionProps> = ({ onDismiss }) => {
 
   return (
     <>
-      <Heading size="md" mb="24px">
-        {TranslateString(999, 'Make a profile!')}
+      <Heading scale="md" mb="24px">
+        {t('Make a profile!')}
       </Heading>
       <Text color="textSubtle">
         It looks like you’ve disabled your account by removing your Pancake Collectible (NFT) profile picture.
       </Text>
       <Button mt="24px" width="100%" onClick={handleClick}>
-        {TranslateString(999, 'Make a profile')}
+        {t('Make a profile')}
       </Button>
     </>
   )

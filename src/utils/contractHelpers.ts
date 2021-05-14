@@ -19,7 +19,9 @@ import {
   getClaimRefundAddress,
   getTradingCompetitionAddress,
   getEasterNftAddress,
+  getCakeVaultAddress,
   getPredictionsAddress,
+  getChainlinkOracleAddress,
 } from 'utils/addressHelpers'
 
 // ABI
@@ -38,15 +40,18 @@ import lotteryAbi from 'config/abi/lottery.json'
 import lotteryTicketAbi from 'config/abi/lotteryNft.json'
 import masterChef from 'config/abi/masterchef.json'
 import sousChef from 'config/abi/sousChef.json'
+import sousChefV2 from 'config/abi/sousChefV2.json'
 import sousChefBnb from 'config/abi/sousChefBnb.json'
 import claimRefundAbi from 'config/abi/claimRefund.json'
 import tradingCompetitionAbi from 'config/abi/tradingCompetition.json'
 import easterNftAbi from 'config/abi/easterNft.json'
+import cakeVaultAbi from 'config/abi/cakeVault.json'
 import predictionsAbi from 'config/abi/predictions.json'
+import chainlinkOracleAbi from 'config/abi/chainlinkOracle.json'
 
 const getContract = (abi: any, address: string, web3?: Web3) => {
   const _web3 = web3 ?? web3NoAccount
-  return new _web3.eth.Contract((abi as unknown) as AbiItem, address)
+  return new _web3.eth.Contract(abi as unknown as AbiItem, address)
 }
 
 export const getBep20Contract = (address: string, web3?: Web3) => {
@@ -68,6 +73,10 @@ export const getSouschefContract = (id: number, web3?: Web3) => {
   const config = poolsConfig.find((pool) => pool.sousId === id)
   const abi = config.poolCategory === PoolCategory.BINANCE ? sousChefBnb : sousChef
   return getContract(abi, getAddress(config.contractAddress), web3)
+}
+export const getSouschefV2Contract = (id: number, web3?: Web3) => {
+  const config = poolsConfig.find((pool) => pool.sousId === id)
+  return getContract(sousChefV2, getAddress(config.contractAddress), web3)
 }
 export const getPointCenterIfoContract = (web3?: Web3) => {
   return getContract(pointCenterIfo, getPointCenterIfoAddress(), web3)
@@ -105,6 +114,12 @@ export const getTradingCompetitionContract = (web3?: Web3) => {
 export const getEasterNftContract = (web3?: Web3) => {
   return getContract(easterNftAbi, getEasterNftAddress(), web3)
 }
+export const getCakeVaultContract = (web3?: Web3) => {
+  return getContract(cakeVaultAbi, getCakeVaultAddress(), web3)
+}
 export const getPredictionsContract = (web3?: Web3) => {
   return getContract(predictionsAbi, getPredictionsAddress(), web3)
+}
+export const getChainlinkOracleContract = (web3?: Web3) => {
+  return getContract(chainlinkOracleAbi, getChainlinkOracleAddress(), web3)
 }

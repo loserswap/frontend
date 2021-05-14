@@ -1,8 +1,8 @@
 import React from 'react'
 import styled, { DefaultTheme } from 'styled-components'
-import { Box, Flex, FlexProps, Text } from '@pancakeswap-libs/uikit'
+import { Box, Flex, FlexProps, Text } from '@pancakeswap/uikit'
 import { formatBnb, formatUsd } from 'views/Predictions/helpers'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { BetPosition, Round } from 'state/types'
 
 // PrizePoolRow
@@ -18,14 +18,49 @@ const getPrizePoolAmount = (totalAmount: PrizePoolRowProps['totalAmount']) => {
   return formatBnb(totalAmount)
 }
 
-export const PrizePoolRow: React.FC<PrizePoolRowProps> = ({ totalAmount, ...props }) => {
-  const TranslateString = useI18n()
-
+const Row = ({ children, ...props }) => {
   return (
     <Flex alignItems="center" justifyContent="space-between" {...props}>
-      <Text bold>{TranslateString(999, 'Prize Pool')}:</Text>
-      <Text bold>{`${getPrizePoolAmount(totalAmount)} BNB`}</Text>
+      {children}
     </Flex>
+  )
+}
+
+export const PrizePoolRow: React.FC<PrizePoolRowProps> = ({ totalAmount, ...props }) => {
+  const { t } = useTranslation()
+
+  return (
+    <Row {...props}>
+      <Text bold>{t('Prize Pool')}:</Text>
+      <Text bold>{`${getPrizePoolAmount(totalAmount)} BNB`}</Text>
+    </Row>
+  )
+}
+
+// Payout Row
+interface PayoutRowProps extends FlexProps {
+  positionLabel: string
+  multiplier: number
+  amount: number
+}
+
+export const PayoutRow: React.FC<PayoutRowProps> = ({ positionLabel, multiplier, amount, ...props }) => {
+  const { t } = useTranslation()
+  const formattedMultiplier = `${multiplier.toLocaleString(undefined, { maximumFractionDigits: 2 })}x`
+
+  return (
+    <Row height="18px" {...props}>
+      <Text fontSize="12px" textTransform="uppercase">
+        {positionLabel}:
+      </Text>
+      <Flex alignItems="center">
+        <Text fontSize="12px" lineHeight="18px" bold>
+          {t('%multiplier% Payout', { multiplier: formattedMultiplier })}
+        </Text>
+        <Text mx="4px">|</Text>
+        <Text fontSize="12px" lineHeight="18px">{`${formatBnb(amount)} BNB`}</Text>
+      </Flex>
+    </Row>
   )
 }
 
@@ -35,13 +70,13 @@ interface LockPriceRowProps extends FlexProps {
 }
 
 export const LockPriceRow: React.FC<LockPriceRowProps> = ({ lockPrice, ...props }) => {
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
 
   return (
-    <Flex alignItems="center" justifyContent="space-between" {...props}>
-      <Text fontSize="14px">{TranslateString(999, 'Locked Price')}:</Text>
-      <Text fontSize="14px">{`${formatUsd(lockPrice)}`}</Text>
-    </Flex>
+    <Row {...props}>
+      <Text fontSize="14px">{t('Locked Price')}:</Text>
+      <Text fontSize="14px">{formatUsd(lockPrice)}</Text>
+    </Row>
   )
 }
 

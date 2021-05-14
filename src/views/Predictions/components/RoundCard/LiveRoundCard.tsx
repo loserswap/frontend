@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { Box, CardBody, Flex, LinkExternal, PlayCircleOutlineIcon, Text, useTooltip } from '@pancakeswap-libs/uikit'
-import useI18n from 'hooks/useI18n'
+import { useCountUp } from 'react-countup'
+import { CardBody, Flex, PlayCircleOutlineIcon, Skeleton, Text, TooltipText, useTooltip } from '@pancakeswap/uikit'
+import { useTranslation } from 'contexts/Localization'
 import { Round, BetPosition } from 'state/types'
-import { useGetBufferBlocks, useGetIntervalBlocks } from 'state/hooks'
-import { useBnbUsdtTicker } from 'hooks/ticker'
+import { useBlock, useGetIntervalBlocks, useGetLastOraclePrice } from 'state/hooks'
 import BlockProgress from 'components/BlockProgress'
 import { formatUsd, getBubbleGumBackground } from '../../helpers'
 import PositionTag from '../PositionTag'
@@ -13,6 +13,7 @@ import MultiplierArrow from './MultiplierArrow'
 import Card from './Card'
 import CardHeader from './CardHeader'
 import CanceledRoundCard from './CanceledRoundCard'
+import CalculatingCard from './CalculatingCard'
 
 interface LiveRoundCardProps {
   round: Round
@@ -41,31 +42,35 @@ const LiveRoundCard: React.FC<LiveRoundCardProps> = ({
   bullMultiplier,
   bearMultiplier,
 }) => {
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const { lockPrice, lockBlock, totalAmount } = round
-  const { stream } = useBnbUsdtTicker()
+  const { currentBlock } = useBlock()
   const totalInterval = useGetIntervalBlocks()
-  const bufferBlocks = useGetBufferBlocks()
-  const isBull = stream?.lastPrice > lockPrice
+  const price = useGetLastOraclePrice()
+  const isBull = price.gt(lockPrice)
   const priceColor = isBull ? 'success' : 'failure'
-  const estimatedEndBlock = lockBlock + totalInterval + bufferBlocks / 2
-  const priceDifference = stream?.lastPrice - lockPrice
+  const estimatedEndBlock = lockBlock + totalInterval
+  const priceDifference = price.minus(lockPrice).toNumber()
+  const { countUp, update } = useCountUp({
+    start: 0,
+    end: price.toNumber(),
+    duration: 1,
+    decimals: 3,
+  })
+  const { targetRef, tooltip, tooltipVisible } = useTooltip(t('Last price from Chainlink Oracle'), {
+    placement: 'bottom',
+  })
 
-  const tooltipContent = (
-    <Box width="256px">
-      {TranslateString(
-        999,
-        'The final price at the end of a round may be different from the price shown on the live feed.',
-      )}
-      <LinkExternal href="https://docs.pancakeswap.finance/products/prediction" mt="8px">
-        {TranslateString(999, 'Learn More')}
-      </LinkExternal>
-    </Box>
-  )
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(tooltipContent, 'bottom')
+  useEffect(() => {
+    update(price.toNumber())
+  }, [price, update])
 
   if (round.failed) {
     return <CanceledRoundCard round={round} />
+  }
+
+  if (currentBlock > estimatedEndBlock) {
+    return <CalculatingCard round={round} />
   }
 
   return (
@@ -74,36 +79,37 @@ const LiveRoundCard: React.FC<LiveRoundCardProps> = ({
         <CardHeader
           status="live"
           icon={<PlayCircleOutlineIcon mr="4px" width="24px" color="secondary" />}
-          title={TranslateString(1198, 'Live')}
+          title={t('Live')}
           epoch={round.epoch}
           blockNumber={estimatedEndBlock}
         />
         <BlockProgress variant="flat" scale="sm" startBlock={lockBlock} endBlock={estimatedEndBlock} />
         <CardBody p="16px">
-          <MultiplierArrow amount={betAmount} multiplier={bullMultiplier} hasEntered={hasEnteredUp} isActive={isBull} />
+          <MultiplierArrow
+            betAmount={betAmount}
+            multiplier={bullMultiplier}
+            hasEntered={hasEnteredUp}
+            isActive={isBull}
+          />
           <RoundResultBox betPosition={isBull ? BetPosition.BULL : BetPosition.BEAR}>
             <Text color="textSubtle" fontSize="12px" bold textTransform="uppercase" mb="8px">
-              {TranslateString(999, 'Last Price')}
+              {t('Last Price')}
             </Text>
             <Flex alignItems="center" justifyContent="space-between" mb="16px" height="36px">
-              {stream && (
-                <>
-                  <div ref={targetRef}>
-                    <Text bold color={priceColor} fontSize="24px" style={{ minHeight: '36px' }}>
-                      {formatUsd(stream.lastPrice)}
-                    </Text>
-                  </div>
-                  <PositionTag betPosition={isBull ? BetPosition.BULL : BetPosition.BEAR}>
-                    {formatUsd(priceDifference)}
-                  </PositionTag>
-                </>
-              )}
+              <div ref={targetRef}>
+                <TooltipText bold color={priceColor} fontSize="24px" style={{ minHeight: '36px' }}>
+                  {price.gt(0) ? `$${countUp}` : <Skeleton height="36px" width="94px" />}
+                </TooltipText>
+              </div>
+              <PositionTag betPosition={isBull ? BetPosition.BULL : BetPosition.BEAR}>
+                {formatUsd(priceDifference)}
+              </PositionTag>
             </Flex>
             {lockPrice && <LockPriceRow lockPrice={lockPrice} />}
             <PrizePoolRow totalAmount={totalAmount} />
           </RoundResultBox>
           <MultiplierArrow
-            amount={betAmount}
+            betAmount={betAmount}
             multiplier={bearMultiplier}
             betPosition={BetPosition.BEAR}
             hasEntered={hasEnteredDown}

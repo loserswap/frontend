@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit'
 import poolsConfig from 'config/constants/pools'
-import { fetchPoolsBlockLimits, fetchPoolsTotalStaking } from './fetchPools'
+import { BIG_ZERO } from 'utils/bigNumber'
+import { fetchPoolsBlockLimits, fetchPoolsStakingLimits, fetchPoolsTotalStaking } from './fetchPools'
 import {
   fetchPoolsAllowance,
   fetchUserBalances,
@@ -33,7 +34,10 @@ export const PoolsSlice = createSlice({
     updatePoolsUserData: (state, action) => {
       const { field, value, sousId } = action.payload
       const index = state.data.findIndex((p) => p.sousId === sousId)
-      state.data[index] = { ...state.data[index], userData: { ...state.data[index].userData, [field]: value } }
+
+      if (index >= 0) {
+        state.data[index] = { ...state.data[index], userData: { ...state.data[index].userData, [field]: value } }
+      }
     },
   },
 })
@@ -49,6 +53,7 @@ export const fetchPoolsPublicDataAsync = () => async (dispatch) => {
   const liveData = poolsConfig.map((pool) => {
     const blockLimit = blockLimits.find((entry) => entry.sousId === pool.sousId)
     const totalStaking = totalStakings.find((entry) => entry.sousId === pool.sousId)
+
     return {
       ...blockLimit,
       ...totalStaking,
@@ -56,6 +61,27 @@ export const fetchPoolsPublicDataAsync = () => async (dispatch) => {
   })
 
   dispatch(setPoolsPublicData(liveData))
+}
+
+export const fetchPoolsStakingLimitsAsync = () => async (dispatch, getState) => {
+  const poolsWithStakingLimit = getState()
+    .pools.data.filter(({ stakingLimit }) => stakingLimit !== null && stakingLimit !== undefined)
+    .map((pool) => pool.sousId)
+
+  const stakingLimits = await fetchPoolsStakingLimits(poolsWithStakingLimit)
+
+  const stakingLimitData = poolsConfig.map((pool) => {
+    if (poolsWithStakingLimit.includes(pool.sousId)) {
+      return { sousId: pool.sousId }
+    }
+    const stakingLimit = stakingLimits[pool.sousId] || BIG_ZERO
+    return {
+      sousId: pool.sousId,
+      stakingLimit: stakingLimit.toJSON(),
+    }
+  })
+
+  dispatch(setPoolsPublicData(stakingLimitData))
 }
 
 export const fetchPoolsUserDataAsync = (account) => async (dispatch) => {
@@ -75,22 +101,22 @@ export const fetchPoolsUserDataAsync = (account) => async (dispatch) => {
   dispatch(setPoolsUserData(userData))
 }
 
-export const updateUserAllowance = (sousId: string, account: string) => async (dispatch) => {
+export const updateUserAllowance = (sousId: number, account: string) => async (dispatch) => {
   const allowances = await fetchPoolsAllowance(account)
   dispatch(updatePoolsUserData({ sousId, field: 'allowance', value: allowances[sousId] }))
 }
 
-export const updateUserBalance = (sousId: string, account: string) => async (dispatch) => {
+export const updateUserBalance = (sousId: number, account: string) => async (dispatch) => {
   const tokenBalances = await fetchUserBalances(account)
   dispatch(updatePoolsUserData({ sousId, field: 'stakingTokenBalance', value: tokenBalances[sousId] }))
 }
 
-export const updateUserStakedBalance = (sousId: string, account: string) => async (dispatch) => {
+export const updateUserStakedBalance = (sousId: number, account: string) => async (dispatch) => {
   const stakedBalances = await fetchUserStakeBalances(account)
   dispatch(updatePoolsUserData({ sousId, field: 'stakedBalance', value: stakedBalances[sousId] }))
 }
 
-export const updateUserPendingReward = (sousId: string, account: string) => async (dispatch) => {
+export const updateUserPendingReward = (sousId: number, account: string) => async (dispatch) => {
   const pendingRewards = await fetchUserPendingRewards(account)
   dispatch(updatePoolsUserData({ sousId, field: 'pendingReward', value: pendingRewards[sousId] }))
 }

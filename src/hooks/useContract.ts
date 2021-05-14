@@ -18,7 +18,10 @@ import {
   getTradingCompetitionContract,
   getEasterNftContract,
   getErc721Contract,
+  getCakeVaultContract,
   getPredictionsContract,
+  getChainlinkOracleContract,
+  getSouschefV2Contract,
 } from 'utils/contractHelpers'
 
 /**
@@ -88,6 +91,11 @@ export const useSousChef = (id) => {
   return useMemo(() => getSouschefContract(id, web3), [id, web3])
 }
 
+export const useSousChefV2 = (id) => {
+  const web3 = useWeb3()
+  return useMemo(() => getSouschefV2Contract(id, web3), [id, web3])
+}
+
 export const usePointCenterIfoContract = () => {
   const web3 = useWeb3()
   return useMemo(() => getPointCenterIfoContract(web3), [web3])
@@ -113,7 +121,17 @@ export const useEasterNftContract = () => {
   return useMemo(() => getEasterNftContract(web3), [web3])
 }
 
+export const useCakeVaultContract = () => {
+  const web3 = useWeb3()
+  return useMemo(() => getCakeVaultContract(web3), [web3])
+}
+
 export const usePredictionsContract = () => {
   const web3 = useWeb3()
   return useMemo(() => getPredictionsContract(web3), [web3])
+}
+
+export const useChainlinkOracleContract = () => {
+  const web3 = useWeb3()
+  return useMemo(() => getChainlinkOracleContract(web3), [web3])
 }

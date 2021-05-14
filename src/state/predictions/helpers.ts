@@ -12,6 +12,13 @@ import {
   MarketResponse,
 } from './queries'
 
+export enum Result {
+  WIN = 'win',
+  LOSE = 'lose',
+  CANCELED = 'canceled',
+  LIVE = 'live',
+}
+
 export const numberOrNull = (value: string) => {
   if (value === null) {
     return null
@@ -140,6 +147,35 @@ export const makeRoundData = (rounds: Round[]): RoundData => {
   }, {})
 }
 
+export const getRoundResult = (bet: Bet, currentEpoch: number): Result => {
+  const { round } = bet
+  if (round.failed) {
+    return Result.CANCELED
+  }
+
+  if (round.epoch >= currentEpoch - 1) {
+    return Result.LIVE
+  }
+  const roundResultPosition = round.closePrice > round.lockPrice ? BetPosition.BULL : BetPosition.BEAR
+
+  return bet.position === roundResultPosition ? Result.WIN : Result.LOSE
+}
+
+/**
+ * Given a bet object, check if it is eligible to be claimed or refunded
+ */
+export const getCanClaim = (bet: Bet) => {
+  return !bet.claimed && (bet.position === bet.round.position || bet.round.failed === true)
+}
+
+/**
+ * Returns only bets where the user has won.
+ * This is necessary because the API currently cannot distinguish between an uncliamed bet that has won or lost
+ */
+export const getUnclaimedWinningBets = (bets: Bet[]): Bet[] => {
+  return bets.filter(getCanClaim)
+}
+
 /**
  * Gets static data from the contract
  */
@@ -211,7 +247,7 @@ export const getRound = async (id: string) => {
   return response.round
 }
 
-type BetHistoryWhereClause = Record<string, string | number | boolean>
+type BetHistoryWhereClause = Record<string, string | number | boolean | string[]>
 
 export const getBetHistory = async (
   where: BetHistoryWhereClause = {},

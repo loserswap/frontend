@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Flex, Heading, Text, Link, useTooltip } from '@pancakeswap-libs/uikit'
+import { Flex, Heading, Text, Link, useTooltip } from '@pancakeswap/uikit'
 
 export interface TimerProps {
   timerStage?: string
@@ -34,7 +34,7 @@ const Timer = ({ minutes, hours, days, showTooltip, HeadingTextComponent, BodyTe
 }
 
 const DefaultHeadingTextComponent = ({ children, ...props }) => (
-  <Heading size="lg" {...props}>
+  <Heading scale="lg" {...props}>
     {children}
   </Heading>
 )
@@ -65,7 +65,9 @@ const Wrapper: React.FC<TimerProps> = ({
   HeadingTextComponent = DefaultHeadingTextComponent,
   BodyTextComponent = DefaultBodyTextComponent,
 }) => {
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(<TooltipContent blockNumber={blockNumber} />, 'bottom')
+  const { targetRef, tooltip, tooltipVisible } = useTooltip(<TooltipContent blockNumber={blockNumber} />, {
+    placement: 'bottom',
+  })
   const shouldDisplayTooltip = showTooltip && tooltipVisible
   return (
     <Flex alignItems="flex-end" position="relative">

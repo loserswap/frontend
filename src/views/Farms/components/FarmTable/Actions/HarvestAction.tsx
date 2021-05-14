@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Button, Skeleton } from '@pancakeswap-libs/uikit'
+import { Button, Skeleton } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { FarmWithStakedValue } from 'views/Farms/components/FarmCard/FarmCard'
 import { getBalanceNumber } from 'utils/formatBalance'
 import { useHarvest } from 'hooks/useHarvest'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { usePriceCakeBusd } from 'state/hooks'
 import { useCountUp } from 'react-countup'
 
@@ -21,7 +21,7 @@ const HarvestAction: React.FunctionComponent<HarvestActionProps> = ({ pid, userD
   let earningsBusd = 0
   let displayBalance = userDataReady ? earnings.toLocaleString() : <Skeleton width={60} />
 
-  // If user didn't connect wallet default abalance will be 0
+  // If user didn't connect wallet default balance will be 0
   if (!earningsBigNumber.isZero()) {
     earnings = getBalanceNumber(earningsBigNumber)
     earningsBusd = new BigNumber(earnings).multipliedBy(cakePrice).toNumber()
@@ -30,7 +30,7 @@ const HarvestAction: React.FunctionComponent<HarvestActionProps> = ({ pid, userD
 
   const [pendingTx, setPendingTx] = useState(false)
   const { onReward } = useHarvest(pid)
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
 
   const { countUp, update } = useCountUp({
     start: 0,
@@ -49,7 +49,7 @@ const HarvestAction: React.FunctionComponent<HarvestActionProps> = ({ pid, userD
     <ActionContainer>
       <ActionTitles>
         <Title>LOWB </Title>
-        <Subtle>{TranslateString(1072, 'EARNED')}</Subtle>
+        <Subtle>{t('EARNED')}</Subtle>
       </ActionTitles>
       <ActionContent>
         <div>
@@ -65,7 +65,7 @@ const HarvestAction: React.FunctionComponent<HarvestActionProps> = ({ pid, userD
           }}
           ml="4px"
         >
-          {TranslateString(562, 'Harvest')}
+          {t('Harvest')}
         </Button>
       </ActionContent>
     </ActionContainer>

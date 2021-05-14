@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import { Button, useModal, IconButton, AddIcon, MinusIcon, Skeleton } from '@pancakeswap-libs/uikit'
+import { Button, useModal, IconButton, AddIcon, MinusIcon, Skeleton } from '@pancakeswap/uikit'
 import { useLocation } from 'react-router-dom'
 import UnlockButton from 'components/UnlockButton'
 import { useWeb3React } from '@web3-react/core'
 import { useFarmUser } from 'state/hooks'
 import { FarmWithStakedValue } from 'views/Farms/components/FarmCard/FarmCard'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { useApprove } from 'hooks/useApprove'
 import { getBep20Contract } from 'utils/contractHelpers'
 import { BASE_ADD_LIQUIDITY_URL } from 'config'
@@ -36,7 +36,7 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
   token,
   userDataReady,
 }) => {
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const { account } = useWeb3React()
   const [requestedApproval, setRequestedApproval] = useState(false)
   const { allowance, tokenBalance, stakedBalance } = useFarmUser(pid)
@@ -85,7 +85,7 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
     return (
       <ActionContainer>
         <ActionTitles>
-          <Subtle>{TranslateString(999, 'START FARMING')}</Subtle>
+          <Subtle>{t('START FARMING')}</Subtle>
         </ActionTitles>
         <ActionContent>
           <UnlockButton width="100%" />
@@ -100,7 +100,7 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
         <ActionContainer>
           <ActionTitles>
             <Title>{lpSymbol} </Title>
-            <Subtle>{TranslateString(999, 'STAKED')}</Subtle>
+            <Subtle>{t('STAKED')}</Subtle>
           </ActionTitles>
           <ActionContent>
             <div>
@@ -110,7 +110,11 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
               <IconButton variant="secondary" onClick={onPresentWithdraw} mr="6px">
                 <MinusIcon color="primary" width="14px" />
               </IconButton>
-              <IconButton variant="secondary" onClick={onPresentDeposit}>
+              <IconButton
+                variant="secondary"
+                onClick={onPresentDeposit}
+                disabled={['history', 'archived'].some((item) => location.pathname.includes(item))}
+              >
                 <AddIcon color="primary" width="14px" />
               </IconButton>
             </IconButtonWrapper>
@@ -122,7 +126,7 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
     return (
       <ActionContainer>
         <ActionTitles>
-          <Subtle>{TranslateString(999, 'STAKE')} </Subtle>
+          <Subtle>{t('STAKE')} </Subtle>
           <Title>{lpSymbol}</Title>
         </ActionTitles>
         <ActionContent>
@@ -130,9 +134,9 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
             width="100%"
             onClick={onPresentDeposit}
             variant="secondary"
-            disabled={location.pathname.includes('archived')}
+            disabled={['history', 'archived'].some((item) => location.pathname.includes(item))}
           >
-            {TranslateString(999, 'Stake LP')}
+            {t('Stake LP')}
           </Button>
         </ActionContent>
       </ActionContainer>
@@ -143,7 +147,7 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
     return (
       <ActionContainer>
         <ActionTitles>
-          <Subtle>{TranslateString(999, 'START FARMING')}</Subtle>
+          <Subtle>{t('START FARMING')}</Subtle>
         </ActionTitles>
         <ActionContent>
           <Skeleton width={180} marginBottom={28} marginTop={14} />
@@ -155,16 +159,11 @@ const Staked: React.FunctionComponent<StackedActionProps> = ({
   return (
     <ActionContainer>
       <ActionTitles>
-        <Subtle>{TranslateString(999, 'ENABLE FARM')}</Subtle>
+        <Subtle>{t('ENABLE FARM')}</Subtle>
       </ActionTitles>
       <ActionContent>
-        <Button
-          width="100%"
-          disabled={requestedApproval || location.pathname.includes('archived')}
-          onClick={handleApprove}
-          variant="secondary"
-        >
-          {TranslateString(999, 'Enable')}
+        <Button width="100%" disabled={requestedApproval} onClick={handleApprove} variant="secondary">
+          {t('Enable')}
         </Button>
       </ActionContent>
     </ActionContainer>

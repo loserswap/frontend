@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   ArrowBackIcon,
   CardBody,
@@ -13,11 +13,12 @@ import {
   Slider,
   Box,
   AutoRenewIcon,
-} from '@pancakeswap-libs/uikit'
+} from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
+import { DEFAULT_TOKEN_DECIMAL } from 'config'
 import { useWeb3React } from '@web3-react/core'
 import { useGetMinBetAmount } from 'state/hooks'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { usePredictionsContract } from 'hooks/useContract'
 import { useGetBnbBalance } from 'hooks/useTokenBalance'
 import useToast from 'hooks/useToast'
@@ -37,7 +38,7 @@ interface SetPositionCardProps {
   onSuccess: (decimalValue: BigNumber, hash: string) => Promise<void>
 }
 
-const dust = new BigNumber(0.01).times(new BigNumber(10).pow(18))
+const dust = new BigNumber(0.01).times(DEFAULT_TOKEN_DECIMAL)
 const percentShortcuts = [10, 25, 50, 75]
 
 const getPercentDisplay = (percentage: number) => {
@@ -75,12 +76,12 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
   const { swiper } = useSwiper()
   const { balance: bnbBalance } = useGetBnbBalance()
   const minBetAmount = useGetMinBetAmount()
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const { toastError } = useToast()
   const predictionsContract = usePredictionsContract()
 
   const balanceDisplay = getBnbAmount(bnbBalance).toNumber()
-  const maxBalance = getBnbAmount(bnbBalance.minus(dust)).toNumber()
+  const maxBalance = getBnbAmount(bnbBalance.gt(dust) ? bnbBalance.minus(dust) : bnbBalance).toNumber()
   const valueAsBn = new BigNumber(value)
 
   const percentageOfMaxBalance = valueAsBn.div(maxBalance).times(100).toNumber()
@@ -88,9 +89,8 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
   const showFieldWarning = account && valueAsBn.gt(0) && errorMessage !== null
   const minBetAmountBalance = getBnbAmount(minBetAmount).toNumber()
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (evt) => {
-    const newValue = evt.target.value
-    setValue(newValue)
+  const handleChange = (input) => {
+    setValue(input)
   }
 
   const handleSliderChange = (newValue: number) => {
@@ -120,7 +120,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
     swiper.attachEvents()
   }
 
-  const { id, fallback, disabled } = getButtonProps(valueAsBn, bnbBalance, minBetAmountBalance)
+  const { fallback, disabled } = getButtonProps(valueAsBn, bnbBalance, minBetAmountBalance)
 
   const handleEnterPosition = () => {
     const betMethod = position === BetPosition.BULL ? 'betBull' : 'betBear'
@@ -136,7 +136,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
         onSuccess(decimalValue, result.transactionHash as string)
       })
       .once('error', (error) => {
-        const errorMsg = TranslateString(999, 'An error occurred, unable to enter your position')
+        const errorMsg = t('An error occurred, unable to enter your position')
 
         toastError('Error!', error?.message)
         setIsTxPending(false)
@@ -153,8 +153,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
       setErrorMessage({ id: 999, fallback: 'Insufficient BNB balance' })
     } else if (bnValue.gt(0) && bnValue.lt(minBetAmountBalance)) {
       setErrorMessage({
-        id: 999,
-        fallback: `A minimum amount of ${minBetAmountBalance} BNB is required`,
+        fallback: 'A minimum amount of %num% %token% is required',
         data: { num: minBetAmountBalance, token: 'BNB' },
       })
     } else {
@@ -170,17 +169,17 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
             <ArrowBackIcon width="24px" />
           </IconButton>
           <FlexRow>
-            <Heading size="md">{TranslateString(999, 'Set Position')}</Heading>
+            <Heading scale="md">{t('Set Position')}</Heading>
           </FlexRow>
           <PositionTag betPosition={position} onClick={togglePosition}>
-            {position === BetPosition.BULL ? TranslateString(999, 'Up') : TranslateString(999, 'Down')}
+            {position === BetPosition.BULL ? t('Up') : t('Down')}
           </PositionTag>
         </Flex>
       </CardHeader>
       <CardBody py="16px">
         <Flex alignItems="center" justifyContent="space-between" mb="8px">
           <Text textAlign="right" color="textSubtle">
-            {TranslateString(999, 'Commit')}:
+            {t('Commit')}:
           </Text>
           <Flex alignItems="center">
             <BinanceIcon mr="4px  " />
@@ -191,17 +190,17 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
         </Flex>
         <BalanceInput
           value={value}
-          onChange={handleChange}
+          onUserInput={handleChange}
           isWarning={showFieldWarning}
           inputProps={{ disabled: !account || isTxPending }}
         />
         {showFieldWarning && (
           <Text color="failure" fontSize="12px" mt="4px" textAlign="right">
-            {TranslateString(errorMessage.id, errorMessage.fallback, errorMessage.data)}
+            {t(errorMessage.fallback, errorMessage.data)}
           </Text>
         )}
         <Text textAlign="right" mb="16px" color="textSubtle" fontSize="12px" style={{ height: '18px' }}>
-          {account && TranslateString(999, `Balance: ${balanceDisplay}`, { num: balanceDisplay })}
+          {account && t(`Balance: ${balanceDisplay}`, { num: balanceDisplay })}
         </Text>
         <Slider
           name="balance"
@@ -234,7 +233,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
             )
           })}
           <Button scale="xs" variant="tertiary" onClick={setMax} disabled={!account || isTxPending}>
-            {TranslateString(452, 'Max')}
+            {t('Max')}
           </Button>
         </Flex>
         <Box mb="8px">
@@ -246,14 +245,14 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
               isLoading={isTxPending}
               endIcon={isTxPending ? <AutoRenewIcon color="currentColor" spin /> : null}
             >
-              {TranslateString(id, fallback)}
+              {t(fallback)}
             </Button>
           ) : (
             <UnlockButton width="100%" />
           )}
         </Box>
         <Text as="p" fontSize="12px" lineHeight={1} color="textSubtle">
-          {TranslateString(999, "You won't be able to remove or change your position once you enter it.")}
+          {t("You won't be able to remove or change your position once you enter it.")}
         </Text>
       </CardBody>
     </Card>

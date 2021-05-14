@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 import CountUp from 'react-countup'
-import { Text } from '@pancakeswap-libs/uikit'
+import { Text } from '@pancakeswap/uikit'
 
 interface TextProps {
   isDisabled?: boolean
   fontSize?: string
   color?: string
+  bold?: boolean
 }
 
 interface BalanceProps extends TextProps {
@@ -14,7 +15,7 @@ interface BalanceProps extends TextProps {
   unit?: string
 }
 
-const Balance: React.FC<BalanceProps> = ({ value, fontSize, color, decimals, isDisabled, unit }) => {
+const Balance: React.FC<BalanceProps> = ({ value, fontSize, color, decimals, isDisabled, unit, bold, ...props }) => {
   const previousValue = useRef(0)
 
   useEffect(() => {
@@ -22,7 +23,7 @@ const Balance: React.FC<BalanceProps> = ({ value, fontSize, color, decimals, isD
   }, [value])
 
   return (
-    <Text bold color={isDisabled ? 'textDisabled' : color} fontSize={fontSize}>
+    <Text bold={bold} color={isDisabled ? 'textDisabled' : color} fontSize={fontSize} {...props}>
       <CountUp start={previousValue.current} end={value} decimals={decimals} duration={1} separator="," />
       {value && unit && <span>{unit}</span>}
     </Text>

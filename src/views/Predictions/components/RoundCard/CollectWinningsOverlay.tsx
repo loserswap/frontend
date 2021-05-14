@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
-import { Flex, TrophyGoldIcon } from '@pancakeswap-libs/uikit'
-import { useAppDispatch } from 'state'
-import { useGetCurrentEpoch } from 'state/hooks'
-import { getBetHistory, transformBetResponse } from 'state/predictions/helpers'
-import { markBetAsCollected } from 'state/predictions'
-import useI18n from 'hooks/useI18n'
+import { Flex, TrophyGoldIcon } from '@pancakeswap/uikit'
+import { useBetCanClaim } from 'state/hooks'
+import { useTranslation } from 'contexts/Localization'
 import CollectWinningsButton from '../CollectWinningsButton'
-import { getPayout } from '../../helpers'
 
 interface CollectWinningsOverlayProps {
   roundId: string
-  hasEntered: boolean
+  epoch: number
+  payout: number
   isBottom?: boolean
 }
 
@@ -30,72 +27,31 @@ const Wrapper = styled(Flex)<{ isBottom: CollectWinningsOverlayProps['isBottom']
       bottom: 0;
     `
       : `
-      top: 0;
+      top: 37px; // Card header height
     `
   }}
 `
 
 const CollectWinningsOverlay: React.FC<CollectWinningsOverlayProps> = ({
   roundId,
-  hasEntered,
+  epoch,
+  payout,
   isBottom = false,
   ...props
 }) => {
-  const [state, setState] = useState<{ betId: string; epoch: number; payout: number }>({
-    betId: null,
-    epoch: null,
-    payout: 0,
-  })
   const { account } = useWeb3React()
-  const TranslateString = useI18n()
-  const dispatch = useAppDispatch()
-  const currentEpoch = useGetCurrentEpoch()
+  const { t } = useTranslation()
+  const canClaim = useBetCanClaim(account, roundId)
 
-  // Check if the wallet can collect the bet
-  // We do it here because it is not gaurenteed the bet info will be in the history
-  useEffect(() => {
-    const fetchBet = async () => {
-      const bets = await getBetHistory({ user: account.toLowerCase(), round: roundId, claimed: false })
-
-      if (bets.length === 1) {
-        const [firstBetResponse] = bets
-        const bet = transformBetResponse(firstBetResponse)
-
-        if (bet.position === bet.round.position) {
-          setState({
-            betId: bet.id,
-            epoch: bet.round.epoch,
-            payout: getPayout(bet),
-          })
-        }
-      }
-    }
-
-    if (account && hasEntered) {
-      fetchBet()
-    }
-  }, [account, roundId, hasEntered, currentEpoch, setState])
-
-  if (!state.epoch) {
+  if (!canClaim) {
     return null
-  }
-
-  const handleSuccess = async () => {
-    dispatch(markBetAsCollected({ betId: state.betId, account }))
-    setState({ betId: null, epoch: null, payout: 0 })
   }
 
   return (
     <Wrapper alignItems="center" p="16px" isBottom={isBottom} {...props}>
       <TrophyGoldIcon width="64px" style={{ flex: 'none' }} mr="8px" />
-      <CollectWinningsButton
-        payout={state.payout}
-        epoch={state.epoch}
-        hasClaimed={false}
-        width="100%"
-        onSuccess={handleSuccess}
-      >
-        {TranslateString(556, 'Collect Winnings')}
+      <CollectWinningsButton payout={payout} roundId={roundId} epoch={epoch} hasClaimed={false} width="100%">
+        {t('Collect Winnings')}
       </CollectWinningsButton>
     </Wrapper>
   )

@@ -1,11 +1,21 @@
 import React from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { ArrowForwardIcon, Box, Button, Radio, Flex, Heading, Text } from '@pancakeswap-libs/uikit'
+import {
+  ArrowForwardIcon,
+  Box,
+  Button,
+  Radio,
+  Flex,
+  Heading,
+  Text,
+  ButtonMenu,
+  ButtonMenuItem,
+} from '@pancakeswap/uikit'
 import { useAppDispatch } from 'state'
 import { HistoryFilter } from 'state/types'
 import { setHistoryFilter, setHistoryPaneState, fetchHistory } from 'state/predictions'
 import { useGetHistoryFilter, useGetIsFetchingHistory } from 'state/hooks'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import styled from 'styled-components'
 import { getBubbleGumBackground } from '../../helpers'
 
@@ -22,6 +32,17 @@ const StyledHeader = styled(Box)`
   padding: 16px;
 `
 
+const ButtonMenuContainer = styled.div`
+  width: 100%;
+  & > div {
+    width: 100%;
+  }
+
+  & button {
+    width: 100%;
+  }
+`
+
 const getClaimParam = (historyFilter: HistoryFilter) => {
   switch (historyFilter) {
     case HistoryFilter.COLLECTED:
@@ -34,10 +55,20 @@ const getClaimParam = (historyFilter: HistoryFilter) => {
   }
 }
 
-const Header = () => {
+interface HeaderProps {
+  activeTab: HistoryTabs
+  setActiveTab: (value: HistoryTabs) => void
+}
+
+export enum HistoryTabs {
+  ROUNDS,
+  PNL,
+}
+
+const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const historyFilter = useGetHistoryFilter()
   const isFetchingHistory = useGetIsFetchingHistory()
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const { account } = useWeb3React()
 
@@ -52,48 +83,63 @@ const Header = () => {
     }
   }
 
+  const switchTab = async (tabIndex: number) => {
+    setActiveTab(tabIndex)
+    await handleChange(HistoryFilter.ALL)()
+  }
+
   return (
     <StyledHeader>
       <Flex alignItems="center" justifyContent="space-between" mb="16px">
         <Heading as="h3" size="md">
-          {TranslateString(999, 'Your History')}
+          {t('History')}
         </Heading>
         <Button onClick={handleClick} variant="text" endIcon={<ArrowForwardIcon color="primary" />} px="0">
-          {TranslateString(438, 'Close')}
+          {t('Close')}
         </Button>
       </Flex>
-      <Text color="textSubtle" fontSize="12px" mb="8px">
-        {TranslateString(999, 'Filter')}
-      </Text>
-      <Flex alignItems="center">
-        <Filter>
-          <Radio
-            scale="sm"
-            checked={historyFilter === HistoryFilter.ALL}
-            disabled={isFetchingHistory || !account}
-            onChange={handleChange(HistoryFilter.ALL)}
-          />
-          <Text ml="4px">{TranslateString(999, 'All')}</Text>
-        </Filter>
-        <Filter>
-          <Radio
-            scale="sm"
-            checked={historyFilter === HistoryFilter.COLLECTED}
-            disabled={isFetchingHistory || !account}
-            onChange={handleChange(HistoryFilter.COLLECTED)}
-          />
-          <Text ml="4px">{TranslateString(999, 'Collected')}</Text>
-        </Filter>
-        <Filter>
-          <Radio
-            scale="sm"
-            checked={historyFilter === HistoryFilter.UNCOLLECTED}
-            disabled={isFetchingHistory || !account}
-            onChange={handleChange(HistoryFilter.UNCOLLECTED)}
-          />
-          <Text ml="4px">{TranslateString(999, 'Uncollected')}</Text>
-        </Filter>
-      </Flex>
+      <ButtonMenuContainer>
+        <ButtonMenu activeIndex={activeTab} scale="sm" variant="subtle" onItemClick={switchTab}>
+          <ButtonMenuItem>{t('Rounds')}</ButtonMenuItem>
+          <ButtonMenuItem>{t('PNL')}</ButtonMenuItem>
+        </ButtonMenu>
+      </ButtonMenuContainer>
+      {activeTab === HistoryTabs.ROUNDS && (
+        <>
+          <Text color="textSubtle" fontSize="12px" mb="8px">
+            {t('Filter')}
+          </Text>
+          <Flex alignItems="center">
+            <Filter>
+              <Radio
+                scale="sm"
+                checked={historyFilter === HistoryFilter.ALL}
+                disabled={isFetchingHistory || !account}
+                onChange={handleChange(HistoryFilter.ALL)}
+              />
+              <Text ml="4px">{t('All')}</Text>
+            </Filter>
+            <Filter>
+              <Radio
+                scale="sm"
+                checked={historyFilter === HistoryFilter.COLLECTED}
+                disabled={isFetchingHistory || !account}
+                onChange={handleChange(HistoryFilter.COLLECTED)}
+              />
+              <Text ml="4px">{t('Collected')}</Text>
+            </Filter>
+            <Filter>
+              <Radio
+                scale="sm"
+                checked={historyFilter === HistoryFilter.UNCOLLECTED}
+                disabled={isFetchingHistory || !account}
+                onChange={handleChange(HistoryFilter.UNCOLLECTED)}
+              />
+              <Text ml="4px">{t('Uncollected')}</Text>
+            </Filter>
+          </Flex>
+        </>
+      )}
     </StyledHeader>
   )
 }

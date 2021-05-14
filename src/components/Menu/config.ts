@@ -1,4 +1,4 @@
-import { MenuEntry } from '@pancakeswap-libs/uikit'
+import { MenuEntry } from '@pancakeswap/uikit'
 
 const config: MenuEntry[] = [
   {
@@ -12,11 +12,19 @@ const config: MenuEntry[] = [
   //   items: [
   //     {
   //       label: 'Exchange',
-  //       href: 'https://exchange.wuxiankj371.com/#/swap',
+  //       href: 'https://exchange.pancakeswap.finance/#/swap',
   //     },
   //     {
   //       label: 'Liquidity',
-  //       href: 'https://v1exchange.wuxiankj371.com/#/pool',
+  //       href: 'https://exchange.pancakeswap.finance/#/pool',
+  //     },
+  //     {
+  //       label: 'LP Migration',
+  //       href: 'https://v1exchange.pancakeswap.finance/#/migrate',
+  //     },
+  //     {
+  //       label: 'V1 Liquidity (Old)',
+  //       href: 'https://v1exchange.pancakeswap.finance/#/pool',
   //     },
   //   ],
   // },

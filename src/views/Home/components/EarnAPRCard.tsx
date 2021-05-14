@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
-import { Heading, Card, CardBody, Flex, ArrowForwardIcon, Skeleton } from '@pancakeswap-libs/uikit'
+import { Heading, Card, CardBody, Flex, ArrowForwardIcon, Skeleton } from '@pancakeswap/uikit'
 import max from 'lodash/max'
 import { NavLink } from 'react-router-dom'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import BigNumber from 'bignumber.js'
 import { getFarmApr } from 'utils/apr'
 import { useFarms, usePriceCakeBusd, useGetApiPrices } from 'state/hooks'
@@ -18,12 +18,17 @@ const StyledFarmStakingCard = styled(Card)`
     margin: 0;
     max-width: none;
   }
+
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 0.65;
+  }
 `
-const CardMidContent = styled(Heading).attrs({ size: 'xl' })`
+const CardMidContent = styled(Heading).attrs({ scale: 'xl' })`
   line-height: 44px;
 `
 const EarnAPRCard = () => {
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const { data: farmsLP } = useFarms()
   const prices = useGetApiPrices()
   const cakePrice = usePriceCakeBusd()
@@ -47,26 +52,22 @@ const EarnAPRCard = () => {
 
   return (
     <StyledFarmStakingCard>
-      <CardBody>
-        <Heading color="contrast" size="lg">
-          Earn up to
-        </Heading>
-        <CardMidContent color="#7645d9">
-          {highestApr ? (
-            `${highestApr}% ${TranslateString(736, 'APR')}`
-          ) : (
-            <Skeleton animation="pulse" variant="rect" height="44px" />
-          )}
-        </CardMidContent>
-        <Flex justifyContent="space-between">
-          <Heading color="contrast" size="lg">
-            in Farms
+      <NavLink exact activeClassName="active" to="/farms" id="farm-apr-cta">
+        <CardBody>
+          <Heading color="contrast" scale="lg">
+            Earn up to
           </Heading>
-          <NavLink exact activeClassName="active" to="/farms" id="farm-apr-cta">
+          <CardMidContent color="#7645d9">
+            {highestApr ? `${highestApr}% ${t('APR')}` : <Skeleton animation="pulse" variant="rect" height="44px" />}
+          </CardMidContent>
+          <Flex justifyContent="space-between">
+            <Heading color="contrast" scale="lg">
+              in Farms
+            </Heading>
             <ArrowForwardIcon mt={30} color="primary" />
-          </NavLink>
-        </Flex>
-      </CardBody>
+          </Flex>
+        </CardBody>
+      </NavLink>
     </StyledFarmStakingCard>
   )
 }

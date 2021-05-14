@@ -9,6 +9,7 @@ import Nfts from 'config/constants/nfts'
 import { getWeb3NoAccount } from 'utils/web3'
 import { getAddress } from 'utils/addressHelpers'
 import { getBalanceNumber } from 'utils/formatBalance'
+import { BIG_ZERO } from 'utils/bigNumber'
 import useRefresh from 'hooks/useRefresh'
 import { fetchFarmsPublicDataAsync, fetchPoolsPublicDataAsync, fetchPoolsUserDataAsync, setBlock } from './actions'
 import { State, Farm, Pool, ProfileState, TeamsState, AchievementState, PriceState, FarmsState } from './types'
@@ -17,6 +18,9 @@ import { fetchTeam, fetchTeams } from './teams'
 import { fetchAchievements } from './achievements'
 import { fetchPrices } from './prices'
 import { fetchWalletNfts } from './collectibles'
+import { getCanClaim } from './predictions/helpers'
+import { transformPool } from './pools/helpers'
+import { fetchPoolsStakingLimitsAsync } from './pools'
 
 export const useFetchPublicData = () => {
   const dispatch = useAppDispatch()
@@ -24,6 +28,7 @@ export const useFetchPublicData = () => {
   useEffect(() => {
     dispatch(fetchFarmsPublicDataAsync())
     dispatch(fetchPoolsPublicDataAsync())
+    dispatch(fetchPoolsStakingLimitsAsync())
   }, [dispatch, slowRefresh])
 
   useEffect(() => {
@@ -58,10 +63,10 @@ export const useFarmUser = (pid) => {
   const farm = useFarmFromPid(pid)
 
   return {
-    allowance: farm.userData ? new BigNumber(farm.userData.allowance) : new BigNumber(0),
-    tokenBalance: farm.userData ? new BigNumber(farm.userData.tokenBalance) : new BigNumber(0),
-    stakedBalance: farm.userData ? new BigNumber(farm.userData.stakedBalance) : new BigNumber(0),
-    earnings: farm.userData ? new BigNumber(farm.userData.earnings) : new BigNumber(0),
+    allowance: farm.userData ? new BigNumber(farm.userData.allowance) : BIG_ZERO,
+    tokenBalance: farm.userData ? new BigNumber(farm.userData.tokenBalance) : BIG_ZERO,
+    stakedBalance: farm.userData ? new BigNumber(farm.userData.stakedBalance) : BIG_ZERO,
+    earnings: farm.userData ? new BigNumber(farm.userData.earnings) : BIG_ZERO,
   }
 }
 
@@ -71,7 +76,7 @@ export const useLpTokenPrice = (symbol: string) => {
 
   return farm.lpTotalSupply && farm.lpTotalInQuoteToken
     ? new BigNumber(getBalanceNumber(farm.lpTotalSupply)).div(farm.lpTotalInQuoteToken).times(tokenPriceInUsd).times(2)
-    : new BigNumber(0)
+    : BIG_ZERO
 }
 
 // Pools
@@ -86,12 +91,12 @@ export const usePools = (account): Pool[] => {
   }, [account, dispatch, fastRefresh])
 
   const pools = useSelector((state: State) => state.pools.data)
-  return pools
+  return pools.map(transformPool)
 }
 
-export const usePoolFromPid = (sousId): Pool => {
+export const usePoolFromPid = (sousId: number): Pool => {
   const pool = useSelector((state: State) => state.pools.data.find((p) => p.sousId === sousId))
-  return pool
+  return transformPool(pool)
 }
 
 // Profile
@@ -173,21 +178,20 @@ export const useGetApiPrice = (address: string) => {
   if (!prices) {
     return null
   }
-
+  if(address === "0x843d4a358471547f51534e3e51fae91cb4dc3f28"){
+    return 1;
+  }
   return prices[address.toLowerCase()]
 }
 
 export const usePriceBnbBusd = (): BigNumber => {
-  const ZERO = new BigNumber(0)
   const bnbBusdFarm = useFarmFromPid(2)
-  return bnbBusdFarm.tokenPriceVsQuote ? new BigNumber(1).div(bnbBusdFarm.tokenPriceVsQuote) : ZERO
+  return bnbBusdFarm.tokenPriceVsQuote ? new BigNumber(1).div(bnbBusdFarm.tokenPriceVsQuote) : BIG_ZERO
 }
 
 export const usePriceCakeBusd = (): BigNumber => {
-  // const ZERO = new BigNumber(0)
-  // const cakeBnbFarm = useFarmFromPid(1)
-  const cakeBusdPrice = new BigNumber(0.000862)
-
+  const cakeBnbFarm = useFarmFromPid(2)
+  const cakeBusdPrice = cakeBnbFarm.tokenPriceVsQuote ? new BigNumber(cakeBnbFarm.tokenPriceVsQuote) : BIG_ZERO
   return cakeBusdPrice
 }
 
@@ -289,6 +293,21 @@ export const useGetBetByRoundId = (account: string, roundId: string) => {
   }
 
   return bets[account][roundId]
+}
+
+export const useBetCanClaim = (account: string, roundId: string) => {
+  const bet = useGetBetByRoundId(account, roundId)
+
+  if (!bet) {
+    return false
+  }
+
+  return getCanClaim(bet)
+}
+
+export const useGetLastOraclePrice = (): BigNumber => {
+  const lastOraclePrice = useSelector((state: State) => state.predictions.lastOraclePrice)
+  return new BigNumber(lastOraclePrice)
 }
 
 // Collectibles

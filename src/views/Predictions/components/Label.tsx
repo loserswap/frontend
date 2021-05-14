@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useCountUp } from 'react-countup'
 import styled from 'styled-components'
-import { BnbUsdtPairTokenIcon, Box, Card, PocketWatchIcon, Text } from '@pancakeswap-libs/uikit'
-import { useBnbUsdtTicker } from 'hooks/ticker'
-import useI18n from 'hooks/useI18n'
+import { BnbUsdtPairTokenIcon, Box, Card, PocketWatchIcon, Text } from '@pancakeswap/uikit'
+import { useGetLastOraclePrice } from 'state/hooks'
+import { useTranslation } from 'contexts/Localization'
 import { formatRoundTime } from '../helpers'
 import useRoundCountdown from '../hooks/useRoundCountdown'
 
@@ -71,8 +72,17 @@ const Label = styled(Card)<{ dir: 'left' | 'right' }>`
 `
 
 export const PricePairLabel: React.FC = () => {
-  const { stream } = useBnbUsdtTicker()
-  const { lastPrice } = stream ?? {}
+  const price = useGetLastOraclePrice()
+  const { countUp, update } = useCountUp({
+    start: 0,
+    end: price.toNumber(),
+    duration: 1,
+    decimals: 3,
+  })
+
+  useEffect(() => {
+    update(price.toNumber())
+  }, [price, update])
 
   return (
     <Box pl="24px" position="relative" display="inline-block">
@@ -83,10 +93,7 @@ export const PricePairLabel: React.FC = () => {
         <Title bold textTransform="uppercase">
           BNBUSDT
         </Title>
-        <Price fontSize="12px">
-          {lastPrice &&
-            `$${lastPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-        </Price>
+        <Price fontSize="12px">{`$${countUp}`}</Price>
       </Label>
     </Box>
   )
@@ -99,13 +106,13 @@ interface TimerLabelProps {
 export const TimerLabel: React.FC<TimerLabelProps> = ({ interval }) => {
   const seconds = useRoundCountdown()
   const countdown = formatRoundTime(seconds)
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
 
   return (
     <Box pr="24px" position="relative">
       <Label dir="right">
         <Title bold color="secondary">
-          {seconds === 0 ? TranslateString(999, 'Closing') : countdown}
+          {seconds === 0 ? t('Closing') : countdown}
         </Title>
         <Interval fontSize="12px">{interval}</Interval>
       </Label>

@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-import { Modal, ModalBody, Text, Image, Button, BalanceInput, Flex } from '@pancakeswap-libs/uikit'
+import { Modal, ModalBody, Text, Image, Button, BalanceInput, Flex } from '@pancakeswap/uikit'
 import { PoolIds, Ifo } from 'config/constants/types'
 import { WalletIfoData, PublicIfoData } from 'hooks/ifo/types'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { getBalanceNumber, formatNumber } from 'utils/formatBalance'
 import { getAddress } from 'utils/addressHelpers'
 import ApproveConfirmButtons from 'views/Profile/components/ApproveConfirmButtons'
@@ -44,41 +44,35 @@ const ContributeModal: React.FC<Props> = ({
   const [value, setValue] = useState('')
   const { account } = useWeb3React()
   const raisingTokenContract = useERC20(getAddress(currency.address))
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const valueWithTokenDecimals = new BigNumber(value).times(DEFAULT_TOKEN_DECIMAL)
 
-  const {
-    isApproving,
-    isApproved,
-    isConfirmed,
-    isConfirming,
-    handleApprove,
-    handleConfirm,
-  } = useApproveConfirmTransaction({
-    onRequiresApproval: async () => {
-      try {
-        const response = await raisingTokenContract.methods.allowance(account, contract.options.address).call()
-        const currentAllowance = new BigNumber(response)
-        return currentAllowance.gt(0)
-      } catch (error) {
-        return false
-      }
-    },
-    onApprove: () => {
-      return raisingTokenContract.methods
-        .approve(contract.options.address, ethers.constants.MaxUint256)
-        .send({ from: account })
-    },
-    onConfirm: () => {
-      return contract.methods
-        .depositPool(valueWithTokenDecimals.toString(), poolId === PoolIds.poolBasic ? 0 : 1)
-        .send({ from: account })
-    },
-    onSuccess: async () => {
-      await onSuccess(valueWithTokenDecimals)
-      onDismiss()
-    },
-  })
+  const { isApproving, isApproved, isConfirmed, isConfirming, handleApprove, handleConfirm } =
+    useApproveConfirmTransaction({
+      onRequiresApproval: async () => {
+        try {
+          const response = await raisingTokenContract.methods.allowance(account, contract.options.address).call()
+          const currentAllowance = new BigNumber(response)
+          return currentAllowance.gt(0)
+        } catch (error) {
+          return false
+        }
+      },
+      onApprove: () => {
+        return raisingTokenContract.methods
+          .approve(contract.options.address, ethers.constants.MaxUint256)
+          .send({ from: account })
+      },
+      onConfirm: () => {
+        return contract.methods
+          .depositPool(valueWithTokenDecimals.toString(), poolId === PoolIds.poolBasic ? 0 : 1)
+          .send({ from: account })
+      },
+      onSuccess: async () => {
+        await onSuccess(valueWithTokenDecimals)
+        onDismiss()
+      },
+    })
 
   const maximumLpCommitable = (() => {
     if (limitPerUserInLP.isGreaterThan(0)) {
@@ -94,12 +88,12 @@ const ContributeModal: React.FC<Props> = ({
       <ModalBody maxWidth="320px">
         {limitPerUserInLP.isGreaterThan(0) && (
           <Flex justifyContent="space-between" mb="16px">
-            <Text>{TranslateString(999, 'Max. LP token entry')}</Text>
+            <Text>{t('Max. LP token entry')}</Text>
             <Text>{getBalanceNumber(limitPerUserInLP, currency.decimals)}</Text>
           </Flex>
         )}
         <Flex justifyContent="space-between" mb="8px">
-          <Text>{TranslateString(999, 'Commit:')}</Text>
+          <Text>{t('Commit:')}</Text>
           <Flex flexGrow={1} justifyContent="flex-end">
             <Image
               src={`/images/farms/${currency.symbol.split(' ')[0].toLocaleLowerCase()}.svg`}
@@ -112,7 +106,7 @@ const ContributeModal: React.FC<Props> = ({
         <BalanceInput
           value={value}
           currencyValue={publicIfoData.currencyPriceInUSD.times(value || 0).toFixed(2)}
-          onChange={(e) => setValue(e.currentTarget.value)}
+          onUserInput={setValue}
           isWarning={valueWithTokenDecimals.isGreaterThan(maximumLpCommitable)}
           mb="8px"
         />
@@ -128,13 +122,12 @@ const ContributeModal: React.FC<Props> = ({
               onClick={() => setValue(getBalanceNumber(maximumLpCommitable.times(multiplierValue)).toString())}
               mr={index < multiplierValues.length - 1 ? '8px' : 0}
             >
-              {TranslateString(999, `${multiplierValue * 100}%`)}
+              {t(`${multiplierValue * 100}%`)}
             </Button>
           ))}
         </Flex>
         <Text color="textSubtle" fontSize="12px" mb="24px">
-          {TranslateString(
-            999,
+          {t(
             'If you don’t commit enough LP tokens, you may not receive any IFO tokens at all and will only receive a full refund of your LP tokens.',
           )}
         </Text>

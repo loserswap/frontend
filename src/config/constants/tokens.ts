@@ -6,17 +6,8 @@ const tokens = {
   cake: {
     symbol: 'CAKE',
     address: {
-      56: '0x343cE6DDC7b44E8183282DBc2Bb9E1e5FA9eDddA',
+      56: '0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82',
       97: '0xa35062141Fa33BCA92Ce69FeD37D0E8908868AAe',
-    },
-    decimals: 18,
-    projectLink: 'https://pancakeswap.finance/',
-  },
-  lowb: {
-    symbol: 'LOWB',
-    address: {
-      56: '0x843d4a358471547f51534e3e51fae91cb4dc3f28',
-      97: '',
     },
     decimals: 18,
     projectLink: 'https://pancakeswap.finance/',
@@ -879,7 +870,7 @@ const tokens = {
   pnt: {
     symbol: 'PNT',
     address: {
-      56: '0x7a1da9f49224ef98389b071b8a3294d1cc5e3e6a',
+      56: '0xdaacb0ab6fb34d24e8a67bfa14bf4d95d4c7af92',
       97: '',
     },
     decimals: 18,
@@ -1190,6 +1181,123 @@ const tokens = {
     },
     decimals: 18,
     projectLink: 'https://lympo.io/lmt/',
+  },
+  btt: {
+    symbol: 'BTT',
+    address: {
+      56: '0x8595f9da7b868b1822194faed312235e43007b49',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.bittorrent.com/',
+  },
+  trx: {
+    symbol: 'TRX',
+    address: {
+      56: '0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://tron.network/',
+  },
+  win: {
+    symbol: 'WIN',
+    address: {
+      56: '0xaef0d72a118ce24fee3cd1d43d383897d05b4e99',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://winklink.org/',
+  },
+  mcoin: {
+    symbol: 'mCOIN',
+    address: {
+      56: '0x49022089e78a8d46ec87a3af86a1db6c189afa6f',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://mirror.finance/',
+  },
+  math: {
+    symbol: 'MATH',
+    address: {
+      56: '0xf218184af829cf2b0019f8e6f0b2423498a36983',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://mathwallet.org/',
+  },
+  kun: {
+    symbol: 'KUN',
+    address: {
+      56: '0x1A2fb0Af670D0234c2857FaD35b789F8Cb725584',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://chemix.io/home',
+  },
+  qsd: {
+    symbol: 'QSD',
+    address: {
+      56: '0x07AaA29E63FFEB2EBf59B33eE61437E1a91A3bb2',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://chemix.io/home',
+  },
+  hyfi: {
+    symbol: 'HYFI',
+    address: {
+      56: '0x9a319b959e33369C5eaA494a770117eE3e585318',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://hyfi.pro/#/',
+  },
+  oin: {
+    symbol: 'OIN',
+    address: {
+      56: '0x658E64FFcF40D240A43D52CA9342140316Ae44fA',
+      97: '',
+    },
+    decimals: 8,
+    projectLink: 'https://oin.finance/',
+  },
+  doge: {
+    symbol: 'DOGE',
+    address: {
+      56: '0xba2ae424d960c26247dd6c32edc70b295c744c43',
+      97: '',
+    },
+    decimals: 8,
+    projectLink: 'https://dogecoin.com/',
+  },
+  fine: {
+    symbol: 'FINE',
+    address: {
+      56: '0x4e6415a5727ea08aae4580057187923aec331227',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://refinable.com/',
+  },
+  one: {
+    symbol: 'ONE',
+    address: {
+      56: '0x04baf95fd4c52fd09a56d840baee0ab8d7357bf0',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.bigone.com/',
+  },
+  lowb: {
+    symbol: 'LOWB',
+    address: {
+      56: '0x843d4a358471547f51534e3e51fae91cb4dc3f28',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
   },
 }
 

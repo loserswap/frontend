@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Flex, Heading, Text } from '@pancakeswap-libs/uikit'
+import { Flex, Heading, Text } from '@pancakeswap/uikit'
 
 interface HeadingProps {
   valueToDisplay?: string
@@ -28,7 +28,7 @@ const LotteryCardHeading: React.FC<HeadingProps> = ({ valueToDisplay, children, 
         <Text fontSize="14px" color="textSubtle">
           {children}
         </Text>
-        <Heading size="lg">{valueToDisplay}</Heading>
+        <Heading scale="lg">{valueToDisplay}</Heading>
       </Flex>
     </Flex>
   )

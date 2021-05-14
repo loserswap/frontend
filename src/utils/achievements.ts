@@ -15,10 +15,9 @@ export const getAchievementTitle = (campaign: Campaign): TranslatableText => {
   switch (campaign.type) {
     case 'ifo':
       return {
-        id: 999,
-        fallback: `IFO Shopper: ${campaign.title}`,
+        key: 'IFO Shopper: %title%',
         data: {
-          name: campaign.title as string,
+          title: campaign.title as string,
         },
       }
     default:
@@ -30,10 +29,9 @@ export const getAchievementDescription = (campaign: Campaign): TranslatableText 
   switch (campaign.type) {
     case 'ifo':
       return {
-        id: 999,
-        fallback: `Committed more than $5 worth of LP in the ${campaign.title} IFO`,
+        key: 'Committed more than $5 worth of LP in the %title% IFO',
         data: {
-          name: campaign.title as string,
+          title: campaign.title as string,
         },
       }
     default:
@@ -42,7 +40,7 @@ export const getAchievementDescription = (campaign: Campaign): TranslatableText 
 }
 
 /**
- * Checks if a wallet is eligble to claim points from valid IFO's
+ * Checks if a wallet is eligible to claim points from valid IFO's
  */
 export const getClaimableIfoData = async (account: string): Promise<Achievement[]> => {
   const ifoCampaigns = ifosList.filter((ifoItem) => ifoItem.campaignId !== undefined)

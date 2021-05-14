@@ -3,29 +3,29 @@ import { Route, useRouteMatch, useLocation } from 'react-router-dom'
 import { useAppDispatch } from 'state'
 import BigNumber from 'bignumber.js'
 import { useWeb3React } from '@web3-react/core'
-import {  Heading, RowType, Toggle, Text } from '@pancakeswap-libs/uikit'
+import { Image, Heading, RowType, Toggle, Text } from '@pancakeswap/uikit'
 import styled from 'styled-components'
 import FlexLayout from 'components/layout/Flex'
 import Page from 'components/layout/Page'
-// import { MigrationV2 } from 'components/Banner'
 import { useFarms, usePriceCakeBusd, useGetApiPrices } from 'state/hooks'
 import useRefresh from 'hooks/useRefresh'
 import { fetchFarmUserDataAsync } from 'state/actions'
 import usePersistState from 'hooks/usePersistState'
 import { Farm } from 'state/types'
-import useI18n from 'hooks/useI18n'
+import { useTranslation } from 'contexts/Localization'
 import { getBalanceNumber } from 'utils/formatBalance'
 import { getFarmApr } from 'utils/apr'
 import { orderBy } from 'lodash'
 import { getAddress } from 'utils/addressHelpers'
 import isArchivedPid from 'utils/farmHelpers'
+import { latinise } from 'utils/latinise'
 import PageHeader from 'components/PageHeader'
 import { fetchFarmsPublicDataAsync, setLoadArchivedFarmsData } from 'state/farms'
-// import  { OptionProps } from 'components/Select/Select'
+import Select, { OptionProps } from 'components/Select/Select'
 import FarmCard, { FarmWithStakedValue } from './components/FarmCard/FarmCard'
 import Table from './components/FarmTable/FarmTable'
 import FarmTabButtons from './components/FarmTabButtons'
-// import SearchInput from './components/SearchInput'
+import SearchInput from './components/SearchInput'
 import { RowProps } from './components/FarmTable/Row'
 import ToggleView from './components/ToggleView/ToggleView'
 import { DesktopColumnSchema, ViewMode } from './components/types'
@@ -58,11 +58,11 @@ const ToggleWrapper = styled.div`
   }
 `
 
-// const LabelWrapper = styled.div`
-//   > ${Text} {
-//     font-size: 12px;
-//   }
-// `
+const LabelWrapper = styled.div`
+  > ${Text} {
+    font-size: 12px;
+  }
+`
 
 const FilterContainer = styled.div`
   display: flex;
@@ -97,23 +97,23 @@ const ViewControls = styled.div`
   }
 `
 
-// const StyledImage = styled(Image)`
-//   margin-left: auto;
-//   margin-right: auto;
-//   margin-top: 58px;
-// `
+const StyledImage = styled(Image)`
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 58px;
+`
 const NUMBER_OF_FARMS_VISIBLE = 12
 
 const Farms: React.FC = () => {
   const { path } = useRouteMatch()
   const { pathname } = useLocation()
-  const TranslateString = useI18n()
+  const { t } = useTranslation()
   const { data: farmsLP, userDataLoaded } = useFarms()
   const cakePrice = usePriceCakeBusd()
-  const [query] = useState('')
+  const [query, setQuery] = useState('')
   const [viewMode, setViewMode] = usePersistState(ViewMode.TABLE, 'pancake_farm_view')
   const { account } = useWeb3React()
-  const [sortOption,] = useState('hot')
+  const [sortOption, setSortOption] = useState('hot')
   const prices = useGetApiPrices()
 
   const dispatch = useAppDispatch()
@@ -182,9 +182,9 @@ const Farms: React.FC = () => {
       })
 
       if (query) {
-        const lowercaseQuery = query.toLowerCase()
+        const lowercaseQuery = latinise(query.toLowerCase())
         farmsToDisplayWithAPR = farmsToDisplayWithAPR.filter((farm: FarmWithStakedValue) => {
-          return farm.lpSymbol.toLowerCase().includes(lowercaseQuery)
+          return latinise(farm.lpSymbol.toLowerCase()).includes(lowercaseQuery)
         })
       }
       return farmsToDisplayWithAPR
@@ -192,9 +192,9 @@ const Farms: React.FC = () => {
     [cakePrice, prices, query, isActive],
   )
 
-  // const handleChangeQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setQuery(event.target.value)
-  // }
+  const handleChangeQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value)
+  }
 
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
@@ -215,7 +215,11 @@ const Farms: React.FC = () => {
             'desc',
           )
         case 'earned':
-          return orderBy(farms, (farm: FarmWithStakedValue) => (farm.userData ? farm.userData.earnings : 0), 'desc')
+          return orderBy(
+            farms,
+            (farm: FarmWithStakedValue) => (farm.userData ? Number(farm.userData.earnings) : 0),
+            'desc',
+          )
         case 'liquidity':
           return orderBy(farms, (farm: FarmWithStakedValue) => Number(farm.liquidity), 'desc')
         default:
@@ -272,7 +276,7 @@ const Farms: React.FC = () => {
     const { token, quoteToken } = farm
     const tokenAddress = token.address
     const quoteTokenAddress = quoteToken.address
-    const lpLabel = farm.lpSymbol && farm.lpSymbol.split(' ')[0].toUpperCase().replace('LOSER', '')
+    const lpLabel = farm.lpSymbol && farm.lpSymbol.split(' ')[0].toUpperCase().replace('PANCAKE', '')
 
     const row: RowProps = {
       apr: {
@@ -358,36 +362,32 @@ const Farms: React.FC = () => {
     )
   }
 
-  // const handleSortOptionChange = (option: OptionProps): void => {
-  //   setSortOption(option.value)
-  // }
+  const handleSortOptionChange = (option: OptionProps): void => {
+    setSortOption(option.value)
+  }
 
   return (
     <>
       <PageHeader>
-        <Heading as="h1" size="xxl" color="secondary" mb="24px">
-          {TranslateString(674, 'Farms')}
+        <Heading as="h1" scale="xxl" color="secondary" mb="24px">
+          {t('Farms')}
         </Heading>
-        <Heading size="lg" color="text">
-          {TranslateString(999, 'Stake Liquidity Pool (LP) tokens to earn.')}
+        <Heading scale="lg" color="text">
+          {t('Stake Liquidity Pool (LP) tokens to earn.')}
         </Heading>
       </PageHeader>
-      {/* <MigrationV2 /> */}
       <Page>
         <ControlContainer>
           <ViewControls>
             <ToggleView viewMode={viewMode} onToggle={(mode: ViewMode) => setViewMode(mode)} />
             <ToggleWrapper>
               <Toggle checked={stakedOnly} onChange={() => setStakedOnly(!stakedOnly)} scale="sm" />
-              <Text> {TranslateString(1116, 'Staked only')}</Text>
+              <Text> {t('Staked only')}</Text>
             </ToggleWrapper>
-            <FarmTabButtons
-              hasStakeInFinishedFarms={stakedInactiveFarms.length > 0}
-              hasStakeInArchivedFarms={stakedArchivedFarms.length > 0}
-            />
+            <FarmTabButtons hasStakeInFinishedFarms={stakedInactiveFarms.length > 0} />
           </ViewControls>
           <FilterContainer>
-            {/* <LabelWrapper>
+            <LabelWrapper>
               <Text>SORT BY</Text>
               <Select
                 options={[
@@ -414,16 +414,16 @@ const Farms: React.FC = () => {
                 ]}
                 onChange={handleSortOptionChange}
               />
-            </LabelWrapper> */}
-            {/* <LabelWrapper style={{ marginLeft: 16 }}>
+            </LabelWrapper>
+            <LabelWrapper style={{ marginLeft: 16 }}>
               <Text>SEARCH</Text>
               <SearchInput onChange={handleChangeQuery} />
-            </LabelWrapper> */}
+            </LabelWrapper>
           </FilterContainer>
         </ControlContainer>
         {renderContent()}
         <div ref={loadMoreRef} />
-        {/* <StyledImage src="/images/3dpan.png" alt="Pancake illustration" width={120} height={103} /> */}
+        <StyledImage src="/images/3dpan.png" alt="Pancake illustration" width={120} height={103} />
       </Page>
     </>
   )

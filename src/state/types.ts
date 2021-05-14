@@ -4,8 +4,7 @@ import { CampaignType, FarmConfig, Nft, PoolConfig, Team } from 'config/constant
 export type TranslatableText =
   | string
   | {
-      id: number
-      fallback: string
+      key: string
       data?: {
         [key: string]: string | number
       }
@@ -28,6 +27,7 @@ export interface Farm extends FarmConfig {
 
 export interface Pool extends PoolConfig {
   totalStaked?: BigNumber
+  stakingLimit?: BigNumber
   startBlock?: number
   endBlock?: number
   userData?: {
@@ -196,12 +196,12 @@ export interface Market {
 }
 
 export interface Bet {
-  id: string
-  hash: string
+  id?: string
+  hash?: string
   amount: number
   position: BetPosition
   claimed: boolean
-  user: PredictionUser
+  user?: PredictionUser
   round: Round
 }
 
@@ -223,7 +223,7 @@ export interface HistoryData {
 
 export interface BetData {
   [key: string]: {
-    [key: string]: Partial<Bet>
+    [key: string]: Bet
   }
 }
 
@@ -245,6 +245,7 @@ export interface PredictionsState {
   intervalBlocks: number
   bufferBlocks: number
   minBetAmount: string
+  lastOraclePrice: string
   rounds: RoundData
   history: HistoryData
   bets: BetData
