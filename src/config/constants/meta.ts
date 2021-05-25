@@ -12,7 +12,7 @@ export const customMeta: { [key: string]: PageMeta } = {
     title: 'Home | PancakeSwap',
   },
   '/competition': {
-    title: 'Trading Battle | PancakeSwap',
+    title: 'Trading Battle | LoserSwap',
   },
   '/prediction': {
     title: 'Prediction | PancakeSwap',

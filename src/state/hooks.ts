@@ -173,14 +173,63 @@ export const useGetApiPrices = () => {
 }
 
 export const useGetApiPrice = (address: string) => {
+  
   const prices = useGetApiPrices()
-
   if (!prices) {
     return null
   }
+  const lowb = 0.000157651;
   if(address === "0x843d4a358471547f51534e3e51fae91cb4dc3f28"){
-    return 1;
+    return lowb;
   }
+
+  // if(address.toLowerCase() === "0xdbc24f8e5b9ba00b40df14eb20282b3cca8564cb"){
+  //   return 0.000000236267;
+  // }
+
+  // if(address.toLowerCase() === "0xe7668e6465680021136b7bbcdaa463702bd7f668"){
+  //   return 0.000000042232;
+  // }
+
+  // if(address.toLowerCase() === "0xc99c1eeaca4edf3da6dc05ccf4a3d4ca6d507b03"){
+  //   return 0.0000000905642;
+  // }
+
+  if(address.toLowerCase() === "0xeff9698e39f6f84998e28ffaf659a1780256db1e"){
+    return 0.000000148903;
+  }
+  
+  // if(address.toLowerCase() === "0x21f9161f0a55b0668857b5b05751719b0c20cb3c"){
+  //   return 0.0259025;
+  // }
+  if(address.toLowerCase() === "0xa45d3247164a0f4fc02264fc3ec9bc9512967043"){
+    return 0.00000240082;
+  }
+
+  // if(address.toLowerCase() === "0x74b5656CDfc26BadB6B76d820565707347911071"){
+  //   return 0.000221121;
+  // }
+
+  // if(address.toLowerCase() === "0xbA27d0DA948566Db03f272dC7A90fAdA1f0ED1E3"){
+  //   return 0.0000323066;
+  // }
+
+  if(address.toLowerCase() === "0x5150eabe0b11751c2800060f1c53cba268d0ac96"){
+    return 0.000000313567;
+  }
+
+  if(address.toLowerCase() === "0xd5755285cc67282e0147e5dc79be1ea420b18883"){
+    return 658260 * lowb;
+  }
+
+  if(address.toLowerCase() === "0x506235012ece5a24c96cf4350bf968d2027d3dc3"){
+    return 0.00000785444;
+  }
+
+  if(address.toLowerCase() === "0xf22082461d6ac5c262b7b0ef5182699c1e0a43df"){
+    return 0.000000844276;
+  }
+
   return prices[address.toLowerCase()]
 }
 

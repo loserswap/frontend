@@ -174,10 +174,9 @@ const Farms: React.FC = () => {
           return farm
         }
 
-        const quoteTokenPriceUsd = prices[getAddress(farm.quoteToken.address).toLowerCase()]
+        const quoteTokenPriceUsd = prices[getAddress(farm.quoteToken.address).toLowerCase()]?prices[getAddress(farm.quoteToken.address).toLowerCase()]:cakePrice
         const totalLiquidity = new BigNumber(farm.lpTotalInQuoteToken).times(quoteTokenPriceUsd)
         const apr = isActive ? getFarmApr(farm.poolWeight, cakePrice, totalLiquidity) : 0
-
         return { ...farm, apr, liquidity: totalLiquidity }
       })
 

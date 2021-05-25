@@ -16,7 +16,7 @@ export const BSC_BLOCK_TIME = 3
 // CAKE_PER_BLOCK in config/index.ts = 40 as we only change the amount sent to the burn pool which is effectively a farm.
 // CAKE/Block in src/views/Home/components/CakeStats.tsx = 20 (40 - Amount sent to burn pool)
 
-export const CAKE_PER_BLOCK = new BigNumber(1300)
+export const CAKE_PER_BLOCK = new BigNumber(2000)
 export const BLOCKS_PER_YEAR = new BigNumber((60 / BSC_BLOCK_TIME) * 60 * 24 * 365) // 10512000
 export const BASE_URL = 'https://app.loserswap.com'
 export const BASE_EXCHANGE_URL = 'https://exchange.pancakeswap.finance'

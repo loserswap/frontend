@@ -1299,6 +1299,119 @@ const tokens = {
     decimals: 18,
     projectLink: 'https://pancakeswap.finance/',
   },
+
+  poorb: {
+    symbol: 'POORB',
+    address: {
+      56: '0xDbc24f8E5B9bA00b40dF14eB20282B3cCA8564Cb',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  saob: {
+    symbol: 'SAOB',
+    address: {
+      56: '0xE7668E6465680021136B7BBCDAa463702BD7F668',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  airb: {
+    symbol: 'AIRB',
+    address: {
+      56: '0xC99C1eEAca4EDf3dA6dC05cCF4A3d4cA6d507b03',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  rdc: {
+    symbol: 'RDC',
+    address: {
+      56: '0xEff9698e39F6f84998E28FFaF659A1780256DB1e',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+
+  ecare: {
+    symbol: 'ECARE',
+    address: {
+      56: '0x21f9161f0A55b0668857b5b05751719B0c20cb3C',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+
+  musk: {
+    symbol: 'MUSK',
+    address: {
+      56: '0xa45d3247164a0f4fc02264fc3ec9bc9512967043',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  winb: {
+    symbol: 'WINB',
+    address: {
+      56: '0x74b5656CDfc26BadB6B76d820565707347911071',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+
+  rbt: {
+    symbol: 'RBT',
+    address: {
+      56: '0xbA27d0DA948566Db03f272dC7A90fAdA1f0ED1E3',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+
+  dsg: {
+    symbol: 'DSG',
+    address: {
+      56: '0x5150eabe0b11751c2800060f1c53cba268d0ac96',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  game: {
+    symbol: 'GAME',
+    address: {
+      56: '0xd5755285cc67282e0147e5dc79be1ea420b18883',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  blowup: {
+    symbol: 'BLOWUP',
+    address: {
+      56: '0x506235012ece5a24c96cf4350bf968d2027d3dc3',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
+  fuck: {
+    symbol: 'FUCK',
+    address: {
+      56: '0xf22082461d6ac5c262b7b0ef5182699c1e0a43df',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
 }
 
 export default tokens

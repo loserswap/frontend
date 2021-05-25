@@ -7,7 +7,7 @@ const farms: FarmConfig[] = [
    */
   {
     pid: 0,
-    lpSymbol: 'CAKE',
+    lpSymbol: 'LOWB',
     lpAddresses: {
       97: '',
       56: '0x843d4a358471547f51534e3e51fae91cb4dc3f28',
@@ -35,6 +35,16 @@ const farms: FarmConfig[] = [
     },
     token: tokens.cake,
     quoteToken: tokens.wbnb,
+  },
+  {
+    pid: 3,
+    lpSymbol: 'GAME-LOWB',
+    lpAddresses: {
+      97: '',
+      56: '0x788B4822E044bE21530e887EE84f8514D8968c48',
+    },
+    token: tokens.game,
+    quoteToken: tokens.lowb,
   },
 ]
 
