@@ -9,7 +9,7 @@ export const DEFAULT_META: PageMeta = {
 
 export const customMeta: { [key: string]: PageMeta } = {
   '/': {
-    title: 'Home | PancakeSwap',
+    title: 'Home | LoserSwap',
   },
   '/competition': {
     title: 'Trading Battle | LoserSwap',
