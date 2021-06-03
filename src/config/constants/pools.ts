@@ -189,6 +189,23 @@ const pools: PoolConfig[] = [
   //   isFinished: false,
   // },
 
+  {
+    sousId: 11,
+    stakingToken: tokens.lowb,
+    earningToken: tokens.gr,
+    contractAddress: {
+      97: '',
+      56: '0x919AD5C106eede2493011eefB2bE17106Bc7521E',
+    },
+    poolCategory: PoolCategory.CORE,
+    harvest: true,
+    tokenPerBlock: '3472',
+    sortOrder: 13,
+    isFinished: false,
+  },
+
+  
+
 ]
 
 export default pools

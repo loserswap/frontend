@@ -1412,6 +1412,15 @@ const tokens = {
     decimals: 18,
     projectLink: 'https://pancakeswap.finance/',
   },
+  gr: {
+    symbol: 'GR',
+    address: {
+      56: '0xe3574339d34d118a624369cee74e6f816b932d16',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://pancakeswap.finance/',
+  },
 }
 
 export default tokens

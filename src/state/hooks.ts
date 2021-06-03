@@ -178,7 +178,7 @@ export const useGetApiPrice = (address: string) => {
   if (!prices) {
     return null
   }
-  const lowb = 0.000157651;
+  const lowb = 0.000527651;
   if(address === "0x843d4a358471547f51534e3e51fae91cb4dc3f28"){
     return lowb;
   }
