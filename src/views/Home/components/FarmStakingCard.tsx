@@ -7,7 +7,7 @@ import { useAllHarvest } from 'hooks/useHarvest'
 import useFarmsWithBalance from 'hooks/useFarmsWithBalance'
 import UnlockButton from 'components/UnlockButton'
 import CakeHarvestBalance from './CakeHarvestBalance'
-import CakeWalletBalance from './CakeWalletBalance'
+import LowbWalletBalance from './LowbWalletBalance'
 
 const StyledFarmStakingCard = styled(Card)`
   background-image: url('');
@@ -66,7 +66,7 @@ const FarmedStakingCard = () => {
         </Block>
         <Block>
           <Label>{t('LOWB in Wallet')}:</Label>
-          <CakeWalletBalance />
+          <LowbWalletBalance />
         </Block>
         <Actions>
           {account ? (
